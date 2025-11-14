@@ -15,7 +15,7 @@ export default function ProductCard({
 }: Product) {
 	const cardContent = (
 		<div className="block bg-gray-900/40 border border-white/10 rounded-lg overflow-hidden hover:border-blue-500 transition">
-			<img src={'/placeholder.jpg'} alt={name} className="w-full h-40 object-cover" />
+			<img src={'/images/Book.png'} alt={name} className="w-full h-40 object-cover" />
 			<div className="p-4">
 				<h2 className="text-lg font-semibold text-white">{name}</h2>
 				<p className="text-blue-400 text-lg font-bold mt-1">R$ {price.toFixed(2)}</p>

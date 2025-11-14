@@ -3,10 +3,11 @@
 import ProductCard from '@/components/ProductCard'
 import { useState, useEffect } from 'react'
 import { getProducts } from '@/lib/api/products'
+import { Product } from '@/types/Schemas/productSchema'
 
 export default function ProductsPage() {
 	const [query, setQuery] = useState('')
-	const [products, setProducts] = useState([])
+	const [products, setProducts] = useState<Product[]>([])
 	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState(null)
 
