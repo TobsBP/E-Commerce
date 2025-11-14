@@ -38,7 +38,7 @@ export default function ProductsPage() {
 	if (error) {
 		return (
 			<div className="min-h-screen bg-gray-900 flex items-center justify-center">
-				<p className="text-red-500 text-xl">Erro ao carregar produtos: {error.message}</p>
+				<p className="text-red-500 text-xl">Erro ao carregar produtos: {error}</p>
 			</div>
 		)
 	}
