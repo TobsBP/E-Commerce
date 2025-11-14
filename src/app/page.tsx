@@ -1,6 +1,5 @@
-export default function Home() {
-  return (
-    <h1>Hellow</h1>
-  );
+import Home from './home/page'
+
+export default function App() {
+	return <Home />
 }
-1
