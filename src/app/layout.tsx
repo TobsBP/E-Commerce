@@ -15,7 +15,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 		<html lang="pt">
 			<body>
 				{token && <Navbar />}
-				{children}
+				<main>{children}</main>
 			</body>
 		</html>
 	)

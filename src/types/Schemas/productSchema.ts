@@ -5,13 +5,16 @@ export const ProductSchema = z.object({
 	id: z.string().optional(),
 	name: z.string(),
 	brand: z.string(),
-	size: z.string(),
 	price: z.number(),
-	stock: z.number(),
-	color: z.string(),
+	image: z.string(),
+	rating: z.number(),
+	reviews: z.number(),
+	colors: z.array(z.string()),
+	sizes: z.array(z.string()),
+	description: z.string(),
+	features: z.array(z.string()),
 	category: z.string(),
-	material: z.string(),
-	gender: z.string(),
+	stock: z.number(),
 })
 
 export type Product = z.infer<typeof ProductSchema>
