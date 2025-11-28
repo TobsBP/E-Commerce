@@ -1,15 +1,15 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import ProductCard from '@/components/ProductCard'
-import { useState, useEffect } from 'react'
 import { getProducts } from '@/lib/api/products'
-import { Product } from '@/types/Schemas/productSchema'
+import type { Product } from '@/types/Schemas/productSchema'
 
 export default function ProductsPage() {
 	const [query, setQuery] = useState('')
 	const [products, setProducts] = useState<Product[]>([])
 	const [loading, setLoading] = useState(true)
-	const [error, setError] = useState(null)
+	const [error, setError] = useState<string | null>(null)
 
 	useEffect(() => {
 		async function fetchProducts() {
@@ -17,7 +17,11 @@ export default function ProductsPage() {
 				const data = await getProducts()
 				setProducts(data)
 			} catch (err) {
-				setError(err as any)
+				if (err instanceof Error) {
+					setError(err.message)
+				} else {
+					setError('Erro desconhecido')
+				}
 			} finally {
 				setLoading(false)
 			}
@@ -59,8 +63,8 @@ export default function ProductsPage() {
 					/>
 
 					<div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-						{filtered.map((p, index) => (
-							<ProductCard key={index} {...p} id={index.toString()} />
+						{filtered.map((p, _index) => (
+							<ProductCard key={p.id ?? p.name} {...p} id={_index.toString()} />
 						))}
 					</div>
 				</div>

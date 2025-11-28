@@ -1,5 +1,5 @@
-import { registerAction } from './actions'
 import Link from 'next/link'
+import { registerAction } from './actions'
 
 export default function Register() {
 	return (

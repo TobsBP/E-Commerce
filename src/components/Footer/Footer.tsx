@@ -57,19 +57,19 @@ export default function Footer() {
 						<h4 className="font-semibold mb-4">Redes Sociais</h4>
 						<div className="flex gap-4">
 							<a
-								href="#"
+								href="https://x.com/?lang=pt"
 								className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
 							>
 								<span className="sr-only">Twitter</span>𝕏
 							</a>
 							<a
-								href="#"
+								href="https://www.instagram.com/"
 								className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
 							>
 								<span className="sr-only">Instagram</span>📷
 							</a>
 							<a
-								href="#"
+								href="http://linkedin.com/"
 								className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
 							>
 								<span className="sr-only">LinkedIn</span>in

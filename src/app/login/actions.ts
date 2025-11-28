@@ -1,8 +1,8 @@
 'use server'
 
 import { cookies } from 'next/headers'
-import { loginRequest } from '@/lib/auth/login'
 import { redirect } from 'next/navigation'
+import { loginRequest } from '@/lib/auth/login'
 
 export async function loginAction(formData: FormData): Promise<void> {
 	const email = formData.get('email') as string

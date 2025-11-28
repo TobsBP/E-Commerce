@@ -1,7 +1,7 @@
-import { loginAction } from './actions'
 import { cookies } from 'next/headers'
-import { loginRequest } from '@/lib/auth/login'
 import { redirect } from 'next/navigation'
+import { loginRequest } from '@/lib/auth/login'
+import { loginAction } from './actions'
 
 jest.mock('next/headers', () => ({
 	cookies: jest.fn(),

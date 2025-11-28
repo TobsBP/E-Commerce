@@ -8,7 +8,7 @@ export async function registerAction(formData: FormData): Promise<void> {
 	const confirmPassword = formData.get('confirmPassword') as string
 	const role = formData.get('role')
 
-	if (password != confirmPassword) {
+	if (password !== confirmPassword) {
 		throw new Error('As senhas não coincidem')
 	}
 

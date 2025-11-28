@@ -30,7 +30,9 @@ export default function CreateClothesPage() {
 
 				<form onSubmit={handleSubmit} className="space-y-6">
 					<div>
-						<label className="block mb-1 text-gray-300">Nome da peça</label>
+						<label htmlFor="" className="block mb-1 text-gray-300">
+							Nome da peça
+						</label>
 						<input
 							type="text"
 							value={name}
@@ -42,7 +44,9 @@ export default function CreateClothesPage() {
 					</div>
 
 					<div>
-						<label className="block mb-1 text-gray-300">Categoria</label>
+						<label htmlFor="" className="block mb-1 text-gray-300">
+							Categoria
+						</label>
 						<input
 							type="text"
 							value={category}
@@ -54,7 +58,9 @@ export default function CreateClothesPage() {
 					</div>
 
 					<div>
-						<label className="block mb-1 text-gray-300">Preço (R$)</label>
+						<label htmlFor="" className="block mb-1 text-gray-300">
+							Preço (R$)
+						</label>
 						<input
 							type="number"
 							value={price}
@@ -66,7 +72,9 @@ export default function CreateClothesPage() {
 					</div>
 
 					<div>
-						<label className="block mb-1 text-gray-300">URL da Imagem</label>
+						<label htmlFor="" className="block mb-1 text-gray-300">
+							URL da Imagem
+						</label>
 						<input
 							type="text"
 							value={image}

@@ -1,7 +1,7 @@
 'use server'
 import { cookies } from 'next/headers'
-import { ProductSchema } from '@/types/Schemas/productSchema'
 import { z } from 'zod'
+import { ProductSchema } from '@/types/Schemas/productSchema'
 
 export async function getProducts() {
 	const cookieStore = await cookies()

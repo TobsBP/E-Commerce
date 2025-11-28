@@ -27,8 +27,15 @@ export default function NavBar() {
 						Contato
 					</Link>
 				</div>
-				<button className="md:hidden">
-					<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<button type="submit" className="md:hidden">
+					<svg
+						role="img"
+						aria-label="title"
+						className="w-6 h-6"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+					>
 						<path
 							strokeLinecap="round"
 							strokeLinejoin="round"
