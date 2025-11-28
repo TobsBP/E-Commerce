@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import { cookies } from 'next/headers'
 import Navbar from '@/components/NavBar'
+import Footer from '@/components/Footer'
 
 export const metadata: Metadata = {
 	title: 'E-Commerce',
@@ -16,6 +17,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 			<body>
 				{token && <Navbar />}
 				<main>{children}</main>
+				{token && <Footer />}
 			</body>
 		</html>
 	)

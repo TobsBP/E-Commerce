@@ -1,5 +1,6 @@
 import { ArrowLeft, Heart, ShieldCheck, ShoppingCart, Star, Truck } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getProducts } from '@/lib/api/products'
 
@@ -18,13 +19,13 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 		<div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-black text-white">
 			{/* Header */}
 			<div className="container mx-auto px-6 pt-24">
-				<button
-					type="submit"
-					className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
+				<Link
+					href="/products"
+					className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors w-fit"
 				>
 					<ArrowLeft size={20} />
 					<span>Voltar</span>
-				</button>
+				</Link>
 			</div>
 
 			{/* Conteúdo Principal */}
