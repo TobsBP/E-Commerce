@@ -62,7 +62,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 	)
 
 	return createPortal(
-		<div className="fixed inset-0 z-[100] flex justify-end">
+		<div className="fixed inset-0 z-100 flex justify-end">
 			{/* Backdrop */}
 			<button
 				type="submit"
