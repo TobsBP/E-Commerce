@@ -1,0 +1,159 @@
+import { ShoppingBag, Trash2, X } from 'lucide-react'
+import Image from 'next/image'
+import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { getCart } from '@/lib/api/cart'
+import { getShirt } from '@/lib/api/shirt'
+import type { IProduct } from '@/types/Interfaces/IProduct'
+
+interface CartDrawerProps {
+	isOpen: boolean
+	onClose: () => void
+}
+
+interface CartItem extends Partial<IProduct> {
+	shirtId: string
+	quantity: number
+	price: number
+}
+
+export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
+	const [cartItems, setCartItems] = useState<CartItem[]>([])
+	const [loading, setLoading] = useState(false)
+	const [mounted, setMounted] = useState(false) // State to track if component is mounted client-side
+
+	useEffect(() => {
+		setMounted(true) // Component is mounted client-side
+		if (isOpen) {
+			setLoading(true)
+			getCart()
+				.then(async (data) => {
+					if (data && Array.isArray(data.items)) {
+						const itemsWithDetails = await Promise.all(
+							data.items.map(async (item: { shirtId: string; quantity: number; price: number }) => {
+								try {
+									const product = await getShirt(item.shirtId)
+									return { ...item, ...product }
+								} catch (e) {
+									console.error(`Failed to fetch product ${item.shirtId}`, e)
+									return item
+								}
+							})
+						)
+						setCartItems(itemsWithDetails)
+					} else {
+						setCartItems([])
+					}
+				})
+				.catch((err) => {
+					console.error(err)
+					setCartItems([])
+				})
+				.finally(() => setLoading(false))
+		}
+	}, [isOpen])
+
+	if (!isOpen || !mounted) return null // Only render portal content if mounted and open
+
+	// Calculate total
+	const total = cartItems.reduce(
+		(acc, item) => acc + Number(item.price || 0) * (item.quantity || 1),
+		0
+	)
+
+	return createPortal(
+		<div className="fixed inset-0 z-[100] flex justify-end">
+			{/* Backdrop */}
+			<button
+				type="submit"
+				tabIndex={0}
+				className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+				onClick={onClose}
+				onKeyDown={(e) => {
+					if (e.key === 'Enter' || e.key === ' ') onClose()
+				}}
+			/>
+
+			{/* Drawer */}
+			<div className="relative w-full max-w-md bg-gray-900 border-l border-white/10 h-full shadow-2xl p-6 flex flex-col animate-in slide-in-from-right duration-300">
+				<div className="flex items-center justify-between mb-8">
+					<h2 className="text-2xl font-bold text-white flex items-center gap-2">
+						<ShoppingBag className="text-blue-400" />
+						Seu Carrinho
+					</h2>
+					<button
+						type="submit"
+						onClick={onClose}
+						className="p-2 hover:bg-white/10 rounded-full transition-colors text-gray-400 hover:text-white"
+					>
+						<X size={24} />
+					</button>
+				</div>
+
+				<div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
+					{loading ? (
+						<div className="flex justify-center py-12">
+							<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+						</div>
+					) : cartItems.length === 0 ? (
+						<div className="text-center py-12 text-gray-400">
+							<p>Seu carrinho está vazio.</p>
+						</div>
+					) : (
+						cartItems.map((item, idx) => (
+							<div
+								key={item.id || idx}
+								className="flex gap-4 p-4 bg-white/5 rounded-xl border border-white/5 hover:border-white/10 transition-colors"
+							>
+								<div className="relative w-20 h-20 rounded-lg overflow-hidden bg-gray-800">
+									{item.image && (
+										<Image
+											src={item.image}
+											alt={item.name || 'Produto'}
+											fill
+											className="object-cover"
+										/>
+									)}
+								</div>
+								<div className="flex-1">
+									<h3 className="font-medium text-white">{item.name || 'Produto indisponível'}</h3>
+									<p className="text-sm text-gray-400 mb-2">{item.brand}</p>
+									<div className="flex items-center justify-between">
+										<div className="flex flex-col">
+											<span className="text-blue-400 font-bold">
+												R$ {Number(item.price).toFixed(2)}
+											</span>
+											<span className="text-xs text-gray-500">Qtd: {item.quantity || 1}</span>
+										</div>
+										{/* Delete button placeholder - functionally would need another API */}
+										<button
+											type="button"
+											className="text-red-400 hover:text-red-300 transition-colors p-1"
+										>
+											<Trash2 size={18} />
+										</button>
+									</div>
+								</div>
+							</div>
+						))
+					)}
+				</div>
+
+				{/* Footer */}
+				<div className="pt-6 mt-6 border-t border-white/10">
+					<div className="flex justify-between items-end mb-6">
+						<span className="text-gray-400">Total</span>
+						<span className="text-2xl font-bold text-white">R$ {total.toFixed(2)}</span>
+					</div>
+					<button
+						type="button"
+						className="w-full py-4 bg-linear-to-r from-blue-500 to-purple-600 rounded-xl font-bold hover:shadow-lg hover:shadow-purple-500/25 transition-all"
+					>
+						Finalizar Compra
+					</button>
+				</div>
+			</div>
+		</div>,
+		document.body
+	)
+}
