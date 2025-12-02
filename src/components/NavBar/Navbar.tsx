@@ -1,6 +1,20 @@
+import { User } from 'lucide-react'
+import { cookies } from 'next/headers'
 import Link from 'next/link'
+import { parseJwt } from '@/lib/auth/jwt'
+import CartButton from './CartButton'
 
-export default function NavBar() {
+export default async function NavBar() {
+	const cookieStore = await cookies()
+	const token = cookieStore.get('token')?.value
+	let isAdmin = false
+
+	if (token) {
+		const user = parseJwt(token)
+		// Check role case-insensitively
+		isAdmin = user?.role?.toUpperCase() === 'ADMIN'
+	}
+
 	return (
 		<nav className="fixed top-0 w-full z-50 bg-gray-900/80 backdrop-blur-md border-b border-white/10">
 			<div className="container mx-auto px-6 py-4 flex items-center justify-between">
@@ -14,9 +28,13 @@ export default function NavBar() {
 					<Link href="/products" className="hover:text-blue-400 transition-colors">
 						Products
 					</Link>
-					<Link href="/products/create" className="hover:text-blue-400 transition-colors">
-						Criar Looks
-					</Link>
+
+					{isAdmin && (
+						<Link href="/products/create" className="hover:text-blue-400 transition-colors">
+							Criar Looks
+						</Link>
+					)}
+
 					<Link href="/about" className="hover:text-blue-400 transition-colors">
 						Sobre
 					</Link>
@@ -25,6 +43,12 @@ export default function NavBar() {
 						className="px-6 py-2 bg-linear-to-r from-blue-500 to-purple-600 rounded-full hover:shadow-lg hover:shadow-purple-500/50 transition-all"
 					>
 						Contato
+					</Link>
+
+					{!isAdmin && <CartButton />}
+
+					<Link href="/profile" className="text-gray-300 hover:text-white transition-colors">
+						<User size={24} />
 					</Link>
 				</div>
 				<button type="submit" className="md:hidden">

@@ -31,4 +31,5 @@ export async function loginAction(formData: FormData): Promise<void> {
 
 export async function logoutAction() {
 	;(await cookies()).delete('token')
+	redirect('/login')
 }

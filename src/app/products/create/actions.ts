@@ -2,8 +2,7 @@
 
 import { v2 as cloudinary } from 'cloudinary'
 import { createShirt } from '@/lib/api/shirt'
-import type { IProduct } from '@/types/Interfaces/IProduct'
-import { ProductSchema } from '@/types/Schemas/productSchema'
+import { type CreateProductInput, CreateProductSchema } from '@/types/Schemas/productSchema'
 
 // Cloudinary config
 cloudinary.config({
@@ -40,10 +39,10 @@ export async function uploadImageToCloudinary(formData: FormData) {
 	})
 }
 
-export async function createProduct(productData: IProduct) {
+export async function createProduct(productData: CreateProductInput) {
 	try {
 		// Validate the product data against the schema
-		const validatedData = ProductSchema.parse(productData)
+		const validatedData = CreateProductSchema.parse(productData)
 
 		// Send the validated data to the API
 		await createShirt(validatedData)

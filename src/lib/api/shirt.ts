@@ -2,7 +2,7 @@
 
 import { z } from 'zod'
 import { getAuthToken } from '@/lib/auth/cookies'
-import { ProductSchema } from '@/types/Schemas/productSchema'
+import { type CreateProductInput, ProductSchema } from '@/types/Schemas/productSchema'
 
 export async function getShirts() {
 	const token = await getAuthToken()
@@ -38,7 +38,7 @@ export async function getShirt(id: string) {
 	return ProductSchema.parse(await res.json())
 }
 
-export async function createShirt(productData: z.infer<typeof ProductSchema>) {
+export async function createShirt(productData: CreateProductInput) {
 	const token = await getAuthToken()
 	const res = await fetch(`${process.env.API_URL}/shirt`, {
 		method: 'POST',

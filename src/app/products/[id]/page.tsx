@@ -1,16 +1,17 @@
-import { ArrowLeft, Heart, ShieldCheck, ShoppingCart, Star, Truck } from 'lucide-react'
+import { ArrowLeft, Heart, ShieldCheck, Star, Truck } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { getShirts } from '@/lib/api/shirt'
+import AddToCartButton from '@/components/AddToCartButton'
+import { getShirts } from '@/lib/api/shirt' // Changed from getShirt
 
 export const revalidate = 0
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
 	const resolvedParams = await params
 	const id = resolvedParams.id
-	const allProducts = await getShirts()
-	const product = allProducts[parseInt(id, 10)]
+	const allProducts = await getShirts() // Reverted to fetching all products
+	const product = allProducts[parseInt(id, 10)] // Reverted to array indexing
 
 	if (!product) {
 		notFound()
@@ -134,13 +135,8 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
 						{/* Botões de Ação */}
 						<div className="flex gap-4 pt-4">
-							<button
-								type="button"
-								className="flex-1 px-8 py-4 bg-linear-to-r from-blue-500 to-purple-600 rounded-full font-semibold hover:shadow-2xl hover:shadow-purple-500/50 hover:scale-105 transition-all flex items-center justify-center gap-2"
-							>
-								<ShoppingCart size={20} />
-								Adicionar ao Carrinho
-							</button>
+							<AddToCartButton shirtId={product.id || ''} />
+
 							<button
 								type="button"
 								className="px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full font-semibold hover:bg-white/20 transition-all"
