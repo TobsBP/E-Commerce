@@ -2,14 +2,14 @@ import { ArrowLeft, Heart, ShieldCheck, ShoppingCart, Star, Truck } from 'lucide
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { getProducts } from '@/lib/api/products'
+import { getShirts } from '@/lib/api/shirt'
 
 export const revalidate = 0
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
 	const resolvedParams = await params
 	const id = resolvedParams.id
-	const allProducts = await getProducts()
+	const allProducts = await getShirts()
 	const product = allProducts[parseInt(id, 10)]
 
 	if (!product) {
