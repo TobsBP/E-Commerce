@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { cookies } from 'next/headers'
-import Navbar from '@/components/NavBar'
 import Footer from '@/components/Footer'
+import Navbar from '@/components/NavBar'
 
 export const metadata: Metadata = {
 	title: 'E-Commerce',
