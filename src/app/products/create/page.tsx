@@ -1,10 +1,13 @@
 'use client'
 
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import SuccessCard from '@/components/SuccessCard'
 import { createProduct, uploadImageToCloudinary } from './actions'
 
 export default function CreateClothesPage() {
+	const router = useRouter()
 	const [name, setName] = useState('')
 	const [brand, setBrand] = useState('')
 	const [category, setCategory] = useState('')
@@ -20,6 +23,11 @@ export default function CreateClothesPage() {
 	const [file, setFile] = useState<File | null>(null)
 	const [preview, setPreview] = useState<string>('')
 	const [loading, setLoading] = useState(false)
+	const [showSuccess, setShowSuccess] = useState(false)
+
+	function handleContinue() {
+		router.push('/products')
+	}
 
 	function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
 		const selectedFile = e.target.files?.[0]
@@ -71,7 +79,8 @@ export default function CreateClothesPage() {
 			const response = await createProduct(productData)
 
 			if (response.success) {
-				alert('Produto criado com sucesso!')
+				setShowSuccess(true)
+				// Optional: Reset form here
 			} else {
 				alert(response.message)
 			}
@@ -85,6 +94,13 @@ export default function CreateClothesPage() {
 
 	return (
 		<div className="min-h-screen bg-gray-900 text-white flex items-center justify-center px-6 py-12 mt-16">
+			{showSuccess && (
+				<SuccessCard
+					productType="Camisa"
+					onClose={() => setShowSuccess(false)}
+					onContinue={handleContinue}
+				/>
+			)}
 			<div className="w-full max-w-2xl bg-gray-800/60 backdrop-blur-md border border-white/10 rounded-2xl p-8 shadow-xl">
 				<h1 className="text-3xl font-bold bg-clip-text text-transparent bg-linear-to-r from-blue-400 to-purple-600 mb-8">
 					Criar Roupa
