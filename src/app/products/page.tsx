@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import ProductCard from '@/components/ProductCard'
-import { getProducts } from '@/lib/api/products'
+import { getShirts } from '@/lib/api/shirt'
 import type { Product } from '@/types/Schemas/productSchema'
 
 export default function ProductsPage() {
@@ -14,7 +14,7 @@ export default function ProductsPage() {
 	useEffect(() => {
 		async function fetchProducts() {
 			try {
-				const data = await getProducts()
+				const data = await getShirts()
 				setProducts(data)
 			} catch (err) {
 				if (err instanceof Error) {
