@@ -22,13 +22,13 @@ export default function Hero() {
 						</p>
 						<div className="flex flex-wrap gap-4">
 							<Link
-								href="/roupas"
+								href="/products"
 								className="px-8 py-4 bg-linear-to-r from-blue-500 to-purple-600 rounded-full font-semibold hover:shadow-2xl hover:shadow-purple-500/50 hover:scale-105 transition-all"
 							>
 								Explorar Roupas
 							</Link>
 							<Link
-								href="/criar"
+								href="/products/create"
 								className="px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full font-semibold hover:bg-white/20 transition-all"
 							>
 								Criar Seu Look
