@@ -33,7 +33,7 @@ export async function uploadImageToCloudinary(formData: FormData) {
 						reject(error)
 						return
 					}
-					resolve(result as any)
+					resolve(result as unknown as { secure_url: string })
 				}
 			)
 			.end(buffer)

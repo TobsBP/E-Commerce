@@ -51,7 +51,7 @@ export default function CreateClothesPage() {
 				price: parseFloat(price),
 				image: imageUrl,
 				rating: parseFloat(rating),
-				reviews: parseInt(reviews),
+				reviews: parseInt(reviews, 10),
 				colors: colors
 					.split(',')
 					.map((s) => s.trim())
@@ -65,7 +65,7 @@ export default function CreateClothesPage() {
 					.split(',')
 					.map((s) => s.trim())
 					.filter((s) => s.length > 0),
-				stock: parseInt(stock),
+				stock: parseInt(stock, 10),
 			}
 
 			const response = await createProduct(productData)
