@@ -4,19 +4,7 @@ import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { getCart, removeFromCart } from '@/lib/api/cart'
 import { getShirt } from '@/lib/api/shirt'
-import type { IProduct } from '@/types/Interfaces/IProduct'
-import type { CartData } from '@/types/Schemas/cartSchema'
-
-interface CartDrawerProps {
-	isOpen: boolean
-	onClose: () => void
-}
-
-interface CartItem extends Partial<IProduct> {
-	shirtId: string
-	quantity: number
-	price: number
-}
+import type { CartDrawerProps, CartItem } from '@/types/Interfaces/ICartDrawerProps'
 
 export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 	const [cartItems, setCartItems] = useState<CartItem[]>([])
