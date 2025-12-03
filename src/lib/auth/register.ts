@@ -1,12 +1,10 @@
-export async function registerRequest(email: string, password: string, role: string) {
-	const res = await fetch(`${process.env.API_URL}/register`, {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ email, password, role }),
-		cache: 'no-store',
-	})
+import { api } from '../api/fetch'
 
-	if (!res) throw new Error('Faeld to find server')
-
-	return res.json()
+export async function registerRequest(email: string, name: string, password: string, role: string) {
+	try {
+		const { data } = await api.post('/register', { name, email, password, role })
+		return data
+	} catch (_error) {
+		throw new Error('Failed to register user')
+	}
 }

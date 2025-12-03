@@ -19,7 +19,7 @@ export default function AddToCartButton({ shirtId }: AddToCartButtonProps) {
 		}
 		setLoading(true)
 		try {
-			await addToCart(shirtId, 1)
+			await addToCart({ shirtId, quantity: 1 })
 			setSuccess(true)
 			// Reset success message after 2 seconds
 			setTimeout(() => setSuccess(false), 2000)

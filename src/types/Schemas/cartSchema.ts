@@ -11,4 +11,10 @@ export const CartSchema = z.object({
 	total: z.number(),
 })
 
+export const CartData = z.object({
+	shirtId: z.string(),
+	quantity: z.number(),
+})
+
 export type Cart = z.infer<typeof CartSchema>
+export type CartData = z.infer<typeof CartData>
