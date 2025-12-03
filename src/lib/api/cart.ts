@@ -45,3 +45,30 @@ export async function addToCart(shirtId: string, quantity: number) {
 
 	return res.json() // Return updated cart or success message
 }
+
+export async function removeFromCart(shirtId: string, quantity: number) {
+	const token = await getAuthToken()
+
+	if (!token) {
+		throw new Error('Usuário não autenticado.')
+	}
+
+	const res = await fetch(`${process.env.API_URL}/cart`, {
+		method: 'DELETE',
+		headers: {
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${token}`,
+		},
+		body: JSON.stringify({
+			shirtId: shirtId,
+			quantity: quantity,
+		}),
+	})
+
+	if (!res.ok) {
+		const errorData = await res.json()
+		throw new Error(errorData.message || 'Erro ao remover item do carrinho.')
+	}
+
+	return res.json()
+}
