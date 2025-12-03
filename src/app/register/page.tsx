@@ -28,6 +28,20 @@ export default function Register() {
 					</div>
 
 					<div>
+						<label className="block mb-1 text-gray-300" htmlFor="email">
+							Nome
+						</label>
+						<input
+							className="w-full bg-gray-900/40 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-0 focus:outline-none transition"
+							type="text"
+							id="name"
+							name="name"
+							required
+							placeholder="ex: Tobias"
+						/>
+					</div>
+
+					<div>
 						<label className="block mb-1 text-gray-300" htmlFor="role">
 							Role
 						</label>

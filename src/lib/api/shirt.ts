@@ -1,57 +1,37 @@
 'use server'
 
 import { z } from 'zod'
-import { getAuthToken } from '@/lib/auth/cookies'
 import { type CreateProductInput, ProductSchema } from '@/types/Schemas/productSchema'
+import { api } from './fetch'
 
 export async function getShirts() {
-	const token = await getAuthToken()
-	const res = await fetch(`${process.env.API_URL}/shirts`, {
-		method: 'GET',
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
-		cache: 'no-store',
-	})
-
-	if (!res.ok) {
+	try {
+		const { data } = await api.get('/shirts')
+		return z.array(ProductSchema).parse(data)
+	} catch (error) {
+		console.error('Erro em getShirts:', error)
 		throw new Error('Erro ao buscar produtos')
 	}
-
-	return z.array(ProductSchema).parse(await res.json())
 }
 
 export async function getShirt(id: string) {
-	const token = await getAuthToken()
-	const res = await fetch(`${process.env.API_URL}/shirt/${id}`, {
-		method: 'GET',
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
-		cache: 'no-store',
-	})
+	try {
+		const { data } = await api.get(`/shirt/${id}`)
 
-	if (!res.ok) {
-		throw new Error('Erro ao buscar produtos')
+		return ProductSchema.parse(data)
+	} catch (error) {
+		console.error('Erro em getShirt:', error)
+		throw new Error('Erro ao buscar produto')
 	}
-
-	return ProductSchema.parse(await res.json())
 }
 
 export async function createShirt(productData: CreateProductInput) {
-	const token = await getAuthToken()
-	const res = await fetch(`${process.env.API_URL}/shirt`, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`,
-		},
-		body: JSON.stringify(productData),
-	})
+	try {
+		const { data } = await api.post('/shirt', productData)
 
-	if (!res.ok) {
+		return data
+	} catch (error) {
+		console.error('Erro em createShirt:', error)
 		throw new Error('Erro ao criar produto')
 	}
-
-	return await res.json()
 }

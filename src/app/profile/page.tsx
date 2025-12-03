@@ -30,7 +30,7 @@ export default async function ProfilePage() {
 					<div className="w-24 h-24 bg-linear-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-4 shadow-lg shadow-purple-500/30">
 						<User size={48} className="text-white" />
 					</div>
-					<h1 className="text-2xl font-bold text-white">Meu Perfil</h1>
+					<h1 className="text-2xl font-bold text-white">Ola! {user?.name}</h1>
 					<p className="text-gray-400 text-sm">Gerencie sua conta</p>
 				</div>
 

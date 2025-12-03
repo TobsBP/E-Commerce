@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom'
 import { getCart, removeFromCart } from '@/lib/api/cart'
 import { getShirt } from '@/lib/api/shirt'
 import type { IProduct } from '@/types/Interfaces/IProduct'
+import type { CartData } from '@/types/Schemas/cartSchema'
 
 interface CartDrawerProps {
 	isOpen: boolean
@@ -63,7 +64,8 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
 	const handleRemoveItem = async (shirtId: string, quantity: number) => {
 		try {
-			await removeFromCart(shirtId, quantity)
+			const data = { shirtId, quantity }
+			await removeFromCart(data)
 			setCartItems((prev) => prev.filter((item) => item.shirtId !== shirtId))
 		} catch (error) {
 			console.error('Error removing item:', error)

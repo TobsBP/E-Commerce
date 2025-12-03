@@ -1,74 +1,34 @@
 'use server'
 
-import { getAuthToken } from '@/lib/auth/cookies'
+import type { CartData } from '@/types/Schemas/cartSchema'
 import { CartSchema } from '@/types/Schemas/cartSchema'
+import { api } from './fetch'
 
 export async function getCart() {
-	const token = await getAuthToken()
-	const res = await fetch(`${process.env.API_URL}/cart`, {
-		method: 'GET',
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
-		cache: 'no-store',
-	})
-
-	if (!res.ok) {
+	try {
+		const { data } = await api.get('/cart')
+		return CartSchema.parse(data)
+	} catch (_error) {
 		throw new Error('Erro ao buscar produtos')
 	}
-
-	return CartSchema.parse(await res.json())
 }
 
-export async function addToCart(shirtId: string, quantity: number) {
-	const token = await getAuthToken()
-	if (!token) {
-		throw new Error('Usuário não autenticado.')
+export async function addToCart(data: CartData) {
+	try {
+		const response = await api.post('/cart', data)
+		return response.data
+	} catch (error: unknown) {
+		console.error('Error adding item to cart:', error)
+		throw new Error('Erro ao adicionar item ao carrinho.')
 	}
-
-	const res = await fetch(`${process.env.API_URL}/cart`, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`,
-		},
-		body: JSON.stringify({
-			shirtId,
-			quantity,
-		}),
-	})
-
-	if (!res.ok) {
-		const errorData = await res.json() // Attempt to read error message from API
-		throw new Error(errorData.message || 'Erro ao adicionar item ao carrinho.')
-	}
-
-	return res.json() // Return updated cart or success message
 }
 
-export async function removeFromCart(shirtId: string, quantity: number) {
-	const token = await getAuthToken()
-
-	if (!token) {
-		throw new Error('Usuário não autenticado.')
+export async function removeFromCart(data: CartData) {
+	try {
+		const response = await api.delete('/cart', { data })
+		return response.data
+	} catch (error: unknown) {
+		console.error('Error removing item from cart:', error)
+		throw new Error('Erro ao remover item ao carrinho.')
 	}
-
-	const res = await fetch(`${process.env.API_URL}/cart`, {
-		method: 'DELETE',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`,
-		},
-		body: JSON.stringify({
-			shirtId: shirtId,
-			quantity: quantity,
-		}),
-	})
-
-	if (!res.ok) {
-		const errorData = await res.json()
-		throw new Error(errorData.message || 'Erro ao remover item do carrinho.')
-	}
-
-	return res.json()
 }

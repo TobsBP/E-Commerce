@@ -1,21 +1,13 @@
 'use server'
 
-import { getAuthToken } from '@/lib/auth/cookies'
+import { api } from './fetch'
 
 export async function getUser(id: string) {
-	const token = await getAuthToken()
-	const res = await fetch(`${process.env.API_URL}/user/${id}`, {
-		method: 'GET',
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
-		cache: 'no-store',
-	})
-
-	if (!res.ok) {
-		console.error(`Failed to fetch user ${id}: ${res.status} ${res.statusText}`)
+	try {
+		const { data } = await api.get(`/user/${id}`)
+		return data
+	} catch (error) {
+		console.error(`Failed to fetch user ${id}:`, error)
 		return null
 	}
-
-	return await res.json()
 }
