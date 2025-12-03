@@ -2,7 +2,7 @@ import { ShoppingBag, Trash2, X } from 'lucide-react'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { getCart } from '@/lib/api/cart'
+import { getCart, removeFromCart } from '@/lib/api/cart'
 import { getShirt } from '@/lib/api/shirt'
 import type { IProduct } from '@/types/Interfaces/IProduct'
 
@@ -60,6 +60,15 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 		(acc, item) => acc + Number(item.price || 0) * (item.quantity || 1),
 		0
 	)
+
+	const handleRemoveItem = async (shirtId: string, quantity: number) => {
+		try {
+			await removeFromCart(shirtId, quantity)
+			setCartItems((prev) => prev.filter((item) => item.shirtId !== shirtId))
+		} catch (error) {
+			console.error('Error removing item:', error)
+		}
+	}
 
 	return createPortal(
 		<div className="fixed inset-0 z-100 flex justify-end">
@@ -129,6 +138,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 										<button
 											type="button"
 											className="text-red-400 hover:text-red-300 transition-colors p-1"
+											onClick={() => handleRemoveItem(item.shirtId, item.quantity || 1)}
 										>
 											<Trash2 size={18} />
 										</button>
