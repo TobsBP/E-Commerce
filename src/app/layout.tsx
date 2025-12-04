@@ -3,6 +3,7 @@ import './globals.css'
 import { cookies } from 'next/headers'
 import Footer from '@/components/Footer'
 import Navbar from '@/components/NavBar'
+import QueryProvider from '@/providers/QueryProvider'
 
 export const metadata: Metadata = {
 	title: 'E-Commerce',
@@ -15,9 +16,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 	return (
 		<html lang="pt">
 			<body>
-				{token && <Navbar />}
-				<main>{children}</main>
-				{token && <Footer />}
+				<QueryProvider>
+					{token && <Navbar />}
+					<main>{children}</main>
+					{token && <Footer />}
+				</QueryProvider>
 			</body>
 		</html>
 	)

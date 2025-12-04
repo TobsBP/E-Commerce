@@ -3,9 +3,18 @@ import Link from 'next/link'
 import type { Product } from '@/types/Schemas/productSchema'
 
 export default function ProductCard({ id, name, price, image }: Product) {
+	// Pega a primeira imagem do array, ou usa uma string vazia como fallback
+	const imageUrl = Array.isArray(image) ? image[0] : image
+
 	const cardContent = (
 		<div className="block bg-gray-900/40 border border-white/10 rounded-lg overflow-hidden hover:border-blue-500 transition">
-			<Image src={image} alt={name} width={400} height={160} className="w-full h-40 object-cover" />
+			<Image
+				src={imageUrl || '/placeholder.png'}
+				alt={name}
+				width={400}
+				height={160}
+				className="w-full h-40 object-cover"
+			/>
 			<div className="p-4">
 				<h2 className="text-lg font-semibold text-white">{name}</h2>
 				<p className="text-blue-400 text-lg font-bold mt-1">R$ {price.toFixed(2)}</p>

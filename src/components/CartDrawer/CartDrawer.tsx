@@ -1,70 +1,87 @@
+'use client'
+
 import { ShoppingBag, Trash2, X } from 'lucide-react'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { getCart, removeFromCart } from '@/lib/api/cart'
-import { getShirt } from '@/lib/api/shirt'
-import type { CartDrawerProps, CartItem } from '@/types/Interfaces/ICartDrawerProps'
+import { useCart } from '@/hooks/useCart'
+import { useProduct } from '@/hooks/useProduct'
+import type { CartDrawerProps } from '@/types/Interfaces/ICartDrawerProps'
+
+import type { Cart } from '@/types/Schemas/cartSchema'
+
+function CartItemRow({ item }: { item: Cart['items'][number] }) {
+	const id = item.shirtId || item.pantId
+	const { data: product, isLoading } = useProduct(id)
+	const { removeFromCart } = useCart()
+
+	if (isLoading) {
+		return (
+			<div className="p-4 bg-white/5 rounded-xl border border-white/5 flex justify-center">
+				<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+			</div>
+		)
+	}
+
+	if (!product) return null
+
+	const handleRemoveItem = () => {
+		const data = item.shirtId
+			? { shirtId: item.shirtId, quantity: item.quantity }
+			: { pantId: item.pantId, quantity: item.quantity }
+		removeFromCart(data)
+	}
+
+	return (
+		<div className="flex gap-4 p-4 bg-white/5 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
+			<div className="relative w-20 h-20 rounded-lg overflow-hidden bg-gray-800">
+				{product.image && (
+					<Image
+						src={product.image[0]}
+						alt={product.name || 'Produto'}
+						fill
+						className="object-cover"
+					/>
+				)}
+			</div>
+			<div className="flex-1">
+				<h3 className="font-medium text-white">{product.name || 'Produto indisponível'}</h3>
+				<p className="text-sm text-gray-400 mb-2">{product.brand}</p>
+				<div className="flex items-center justify-between">
+					<div className="flex flex-col">
+						<span className="text-blue-400 font-bold">R$ {Number(product.price).toFixed(2)}</span>
+						<span className="text-xs text-gray-500">Qtd: {item.quantity || 1}</span>
+					</div>
+					<button
+						type="button"
+						className="text-red-400 hover:text-red-300 transition-colors p-1"
+						onClick={handleRemoveItem}
+					>
+						<Trash2 size={18} />
+					</button>
+				</div>
+			</div>
+		</div>
+	)
+}
 
 export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
-	const [cartItems, setCartItems] = useState<CartItem[]>([])
-	const [loading, setLoading] = useState(false)
-	const [mounted, setMounted] = useState(false) // State to track if component is mounted client-side
+	const { cart, isLoading } = useCart()
+	const [mounted, setMounted] = useState(false)
 
 	useEffect(() => {
-		setMounted(true) // Component is mounted client-side
-		if (isOpen) {
-			setLoading(true)
-			getCart()
-				.then(async (data) => {
-					if (data && Array.isArray(data.items)) {
-						const itemsWithDetails = await Promise.all(
-							data.items.map(async (item: { shirtId: string; quantity: number; price: number }) => {
-								try {
-									const product = await getShirt(item.shirtId)
-									return { ...item, ...product }
-								} catch (e) {
-									console.error(`Failed to fetch product ${item.shirtId}`, e)
-									return item
-								}
-							})
-						)
-						setCartItems(itemsWithDetails)
-					} else {
-						setCartItems([])
-					}
-				})
-				.catch((err) => {
-					console.error(err)
-					setCartItems([])
-				})
-				.finally(() => setLoading(false))
-		}
-	}, [isOpen])
+		setMounted(true)
+	}, [])
 
-	if (!isOpen || !mounted) return null // Only render portal content if mounted and open
+	if (!isOpen || !mounted) return null
 
-	// Calculate total
-	const total = cartItems.reduce(
-		(acc, item) => acc + Number(item.price || 0) * (item.quantity || 1),
-		0
-	)
-
-	const handleRemoveItem = async (shirtId: string, quantity: number) => {
-		try {
-			const data = { shirtId, quantity }
-			await removeFromCart(data)
-			setCartItems((prev) => prev.filter((item) => item.shirtId !== shirtId))
-		} catch (error) {
-			console.error('Error removing item:', error)
-		}
-	}
+	const total = cart?.total || 0
 
 	return createPortal(
 		<div className="fixed inset-0 z-100 flex justify-end">
 			{/* Backdrop */}
 			<button
-				type="submit"
+				type="button"
 				tabIndex={0}
 				className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
 				onClick={onClose}
@@ -81,7 +98,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 						Seu Carrinho
 					</h2>
 					<button
-						type="submit"
+						type="button"
 						onClick={onClose}
 						className="p-2 hover:bg-white/10 rounded-full transition-colors text-gray-400 hover:text-white"
 					>
@@ -90,51 +107,17 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 				</div>
 
 				<div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
-					{loading ? (
+					{isLoading ? (
 						<div className="flex justify-center py-12">
 							<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
 						</div>
-					) : cartItems.length === 0 ? (
+					) : !cart || cart.items.length === 0 ? (
 						<div className="text-center py-12 text-gray-400">
 							<p>Seu carrinho está vazio.</p>
 						</div>
 					) : (
-						cartItems.map((item, idx) => (
-							<div
-								key={item.id || idx}
-								className="flex gap-4 p-4 bg-white/5 rounded-xl border border-white/5 hover:border-white/10 transition-colors"
-							>
-								<div className="relative w-20 h-20 rounded-lg overflow-hidden bg-gray-800">
-									{item.image && (
-										<Image
-											src={item.image}
-											alt={item.name || 'Produto'}
-											fill
-											className="object-cover"
-										/>
-									)}
-								</div>
-								<div className="flex-1">
-									<h3 className="font-medium text-white">{item.name || 'Produto indisponível'}</h3>
-									<p className="text-sm text-gray-400 mb-2">{item.brand}</p>
-									<div className="flex items-center justify-between">
-										<div className="flex flex-col">
-											<span className="text-blue-400 font-bold">
-												R$ {Number(item.price).toFixed(2)}
-											</span>
-											<span className="text-xs text-gray-500">Qtd: {item.quantity || 1}</span>
-										</div>
-										{/* Delete button placeholder - functionally would need another API */}
-										<button
-											type="button"
-											className="text-red-400 hover:text-red-300 transition-colors p-1"
-											onClick={() => handleRemoveItem(item.shirtId, item.quantity || 1)}
-										>
-											<Trash2 size={18} />
-										</button>
-									</div>
-								</div>
-							</div>
+						cart.items.map((item: Cart['items'][number], idx: number) => (
+							<CartItemRow key={item.shirtId || item.pantId || idx} item={item} />
 						))
 					)}
 				</div>

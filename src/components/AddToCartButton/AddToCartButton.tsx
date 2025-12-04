@@ -2,24 +2,31 @@
 
 import { Check, ShoppingCart } from 'lucide-react'
 import { useState } from 'react'
-import { addToCart } from '@/lib/api/cart'
+import { useCart } from '@/hooks/useCart'
 
 interface AddToCartButtonProps {
-	shirtId: string
+	productId: string
+	category: string
 }
 
-export default function AddToCartButton({ shirtId }: AddToCartButtonProps) {
+export default function AddToCartButton({ productId, category }: AddToCartButtonProps) {
+	const { addToCart } = useCart()
 	const [loading, setLoading] = useState(false)
 	const [success, setSuccess] = useState(false)
 
 	async function handleAddToCart() {
-		if (!shirtId) {
+		if (!productId) {
 			alert('Erro: ID do produto inválido')
 			return
 		}
 		setLoading(true)
 		try {
-			await addToCart({ shirtId, quantity: 1 })
+			const payload =
+				category === 'calcas'
+					? { pantId: productId, quantity: 1 }
+					: { shirtId: productId, quantity: 1 }
+
+			await addToCart(payload)
 			setSuccess(true)
 			// Reset success message after 2 seconds
 			setTimeout(() => setSuccess(false), 2000)

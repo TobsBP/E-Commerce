@@ -19,7 +19,12 @@ export async function addToCart(data: CartData) {
 		return response.data
 	} catch (error: unknown) {
 		console.error('Error adding item to cart:', error)
-		throw new Error('Erro ao adicionar item ao carrinho.')
+		const errorMessage =
+			(error as any).response?.data?.message ||
+			(error as any).response?.data?.error ||
+			(error as any).message ||
+			'Erro desconhecido'
+		throw new Error(`Erro ao adicionar item ao carrinho: ${errorMessage}`)
 	}
 }
 

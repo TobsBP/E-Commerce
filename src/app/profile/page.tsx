@@ -3,7 +3,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getUser } from '@/lib/api/user'
 import { parseJwt } from '@/lib/auth/jwt'
-import { logoutAction } from '../login/actions'
+import { logoutAction } from '@/lib/auth/login'
 
 export default async function ProfilePage() {
 	const cookieStore = await cookies()

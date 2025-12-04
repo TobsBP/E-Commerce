@@ -4,10 +4,12 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import SuccessCard from '@/components/SuccessCard'
-import { createProduct, uploadImageToCloudinary } from './actions'
+import { useCreateProduct } from '@/hooks/useCreateProduct'
+import { uploadImageToCloudinary } from '@/lib/cloudinary/index'
 
 export default function CreateClothesPage() {
 	const router = useRouter()
+	const { mutateAsync: createProductMutation, isPending: isCreating } = useCreateProduct()
 	const [name, setName] = useState('')
 	const [brand, setBrand] = useState('')
 	const [category, setCategory] = useState('')
@@ -22,8 +24,16 @@ export default function CreateClothesPage() {
 
 	const [file, setFile] = useState<File | null>(null)
 	const [preview, setPreview] = useState<string>('')
-	const [loading, setLoading] = useState(false)
+	const [uploading, setUploading] = useState(false)
 	const [showSuccess, setShowSuccess] = useState(false)
+
+	const loading = isCreating || uploading
+
+	const formatCategoryName = (cat: string) => {
+		if (cat === 'calcas') return 'Calças'
+		if (cat === 'camisas') return 'Camisas'
+		return cat.charAt(0).toUpperCase() + cat.slice(1)
+	}
 
 	function handleContinue() {
 		router.push('/products')
@@ -39,17 +49,18 @@ export default function CreateClothesPage() {
 
 	async function handleSubmit(e: React.FormEvent) {
 		e.preventDefault()
-		setLoading(true)
 
 		try {
 			let imageUrl = ''
 
 			if (file) {
+				setUploading(true)
 				const formData = new FormData()
 				formData.append('file', file)
 
 				const result = await uploadImageToCloudinary(formData)
 				imageUrl = result.secure_url
+				setUploading(false)
 			}
 
 			const productData = {
@@ -57,7 +68,7 @@ export default function CreateClothesPage() {
 				brand,
 				category,
 				price: parseFloat(price),
-				image: imageUrl,
+				image: [imageUrl],
 				rating: parseFloat(rating),
 				reviews: parseInt(reviews, 10),
 				colors: colors
@@ -76,19 +87,12 @@ export default function CreateClothesPage() {
 				stock: parseInt(stock, 10),
 			}
 
-			const response = await createProduct(productData)
-
-			if (response.success) {
-				setShowSuccess(true)
-				// Optional: Reset form here
-			} else {
-				alert(response.message)
-			}
+			await createProductMutation(productData)
+			setShowSuccess(true)
 		} catch (error) {
 			console.error(error)
+			setUploading(false)
 			alert('Erro ao criar o produto.')
-		} finally {
-			setLoading(false)
 		}
 	}
 
@@ -96,14 +100,14 @@ export default function CreateClothesPage() {
 		<div className="min-h-screen bg-gray-900 text-white flex items-center justify-center px-6 py-12 mt-16">
 			{showSuccess && (
 				<SuccessCard
-					productType="Camisa"
+					productType={formatCategoryName(category)}
 					onClose={() => setShowSuccess(false)}
 					onContinue={handleContinue}
 				/>
 			)}
 			<div className="w-full max-w-2xl bg-gray-800/60 backdrop-blur-md border border-white/10 rounded-2xl p-8 shadow-xl">
 				<h1 className="text-3xl font-bold bg-clip-text text-transparent bg-linear-to-r from-blue-400 to-purple-600 mb-8">
-					Criar Roupa
+					Criar Produto
 				</h1>
 
 				<form onSubmit={handleSubmit} className="space-y-6">
@@ -142,17 +146,24 @@ export default function CreateClothesPage() {
 							<label htmlFor="category" className="block mb-1 text-gray-300">
 								Categoria
 							</label>
-							<input
+							<select
 								id="category"
-								type="text"
 								value={category}
 								onChange={(e) => setCategory(e.target.value)}
-								placeholder="Ex: Camisetas"
 								required
-								className="w-full bg-gray-900/40 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-0 focus:outline-none transition"
-							/>
+								className="w-full bg-gray-900/40 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-0 focus:outline-none transition appearance-none"
+							>
+								<option value="" disabled className="bg-gray-800 text-gray-400">
+									Selecione uma categoria
+								</option>
+								<option value="camisas" className="bg-gray-800">
+									Camisas
+								</option>
+								<option value="calcas" className="bg-gray-800">
+									Calças
+								</option>
+							</select>
 						</div>
-
 						<div>
 							<label htmlFor="price" className="block mb-1 text-gray-300">
 								Preço (R$)
@@ -342,7 +353,7 @@ export default function CreateClothesPage() {
 								Enviando...
 							</span>
 						) : (
-							'Criar Roupa'
+							'Criar Produto'
 						)}
 					</button>
 				</form>

@@ -1,8 +1,6 @@
 'use server'
 
 import { v2 as cloudinary } from 'cloudinary'
-import { createShirt } from '@/lib/api/shirt'
-import { type CreateProductInput, CreateProductSchema } from '@/types/Schemas/productSchema'
 
 // Cloudinary config
 cloudinary.config({
@@ -37,19 +35,4 @@ export async function uploadImageToCloudinary(formData: FormData) {
 			)
 			.end(buffer)
 	})
-}
-
-export async function createProduct(productData: CreateProductInput) {
-	try {
-		// Validate the product data against the schema
-		const validatedData = CreateProductSchema.parse(productData)
-
-		// Send the validated data to the API
-		await createShirt(validatedData)
-
-		return { success: true, message: 'Produto criado com sucesso!' }
-	} catch (error) {
-		console.error('Erro ao validar ou criar o produto:', error)
-		return { success: false, message: 'Erro ao criar o produto.', error }
-	}
 }

@@ -1,21 +1,63 @@
+'use client'
+
 import { ArrowLeft, Heart, ShieldCheck, Star, Truck } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import AddToCartButton from '@/components/AddToCartButton'
-import { getShirts } from '@/lib/api/shirt' // Changed from getShirt
+import { getPant } from '@/lib/api/pant'
+import { getShirt } from '@/lib/api/shirt'
 
-export const revalidate = 0
+import type { Product } from '@/types/Schemas/productSchema'
 
-export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
-	const resolvedParams = await params
-	const id = resolvedParams.id
-	const allProducts = await getShirts() // Reverted to fetching all products
-	const product = allProducts[parseInt(id, 10)] // Reverted to array indexing
+export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
+	const [product, setProduct] = useState<Product | null>(null)
+	const [selectedImage, setSelectedImage] = useState(0)
+	const [loading, setLoading] = useState(true)
+
+	useEffect(() => {
+		async function loadProduct() {
+			const resolvedParams = await params
+			const id = resolvedParams.id
+
+			const shirt = await getShirt(id)
+			if (shirt) {
+				setProduct(shirt)
+				setLoading(false)
+				return
+			}
+
+			const pant = await getPant(id)
+			if (pant) {
+				setProduct(pant)
+				setLoading(false)
+				return
+			}
+
+			setLoading(false)
+		}
+
+		loadProduct()
+	}, [params])
+
+	if (loading) {
+		return (
+			<div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-black text-white flex items-center justify-center">
+				<div className="text-xl">Carregando...</div>
+			</div>
+		)
+	}
 
 	if (!product) {
-		notFound()
+		return (
+			<div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-black text-white flex items-center justify-center">
+				<div className="text-xl">Produto não encontrado</div>
+			</div>
+		)
 	}
+
+	const images = Array.isArray(product.image) ? product.image : product.image ? [product.image] : []
+
 	return (
 		<div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-black text-white">
 			{/* Header */}
@@ -35,15 +77,21 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 					{/* Imagem do Produto */}
 					<div className="relative">
 						<div className="relative w-full h-[600px] rounded-3xl overflow-hidden bg-linear-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 backdrop-blur-sm border border-white/10">
-							<Image
-								src={product.image}
-								alt={product.name}
-								fill
-								className="object-cover"
-								sizes="(max-width: 768px) 100vw, 50vw"
-							/>
+							{images.length > 0 && images[selectedImage] ? (
+								<Image
+									src={images[selectedImage]}
+									alt={product.name}
+									fill
+									className="object-cover"
+									sizes="(max-width: 768px) 100vw, 50vw"
+								/>
+							) : (
+								<div className="w-full h-full flex items-center justify-center text-gray-500">
+									<span className="text-lg">Imagem não disponível</span>
+								</div>
+							)}
 							<button
-								type="submit"
+								type="button"
 								className="absolute top-6 right-6 p-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20 hover:bg-white/20 transition-all"
 							>
 								<Heart size={24} />
@@ -51,12 +99,30 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 						</div>
 
 						{/* Miniaturas */}
-						<div className="flex gap-4 mt-6">
-							{[1, 2, 3, 4].map((i) => (
-								<div
-									key={i}
-									className="w-20 h-20 rounded-xl bg-white/5 border border-white/10 cursor-pointer hover:border-blue-400 transition-all"
-								/>
+						<div className="flex gap-4 mt-6 overflow-x-auto">
+							{images.map((img, i) => (
+								<button
+									key={img}
+									type="button"
+									onClick={() => setSelectedImage(i)}
+									className={`relative min-w-20 w-20 h-20 rounded-xl overflow-hidden bg-white/5 border transition-all ${
+										selectedImage === i
+											? 'border-blue-400 ring-2 ring-blue-400'
+											: 'border-white/10 hover:border-blue-400'
+									}`}
+								>
+									{img ? (
+										<Image
+											src={img}
+											alt={`${product.name} - imagem ${i + 1}`}
+											fill
+											className="object-cover"
+											sizes="80px"
+										/>
+									) : (
+										<div className="w-full h-full bg-gray-700" />
+									)}
+								</button>
 							))}
 						</div>
 					</div>
@@ -135,7 +201,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
 						{/* Botões de Ação */}
 						<div className="flex gap-4 pt-4">
-							<AddToCartButton shirtId={product.id || ''} />
+							<AddToCartButton productId={product.id || ''} category={product.category} />
 
 							<button
 								type="button"

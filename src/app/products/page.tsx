@@ -2,41 +2,23 @@
 
 import { useEffect, useState } from 'react'
 import ProductCard from '@/components/ProductCard'
-import { getShirts } from '@/lib/api/shirt'
-import type { Product } from '@/types/Schemas/productSchema'
+import { useProducts } from '@/hooks/useProducts'
 
 export default function ProductsPage() {
 	const [query, setQuery] = useState('')
-	const [products, setProducts] = useState<Product[]>([])
-	const [loading, setLoading] = useState(true)
-	const [error, setError] = useState<string | null>(null)
 	const [currentPage, setCurrentPage] = useState(1)
+	const [selectedCategory, setSelectedCategory] = useState('Todas')
 	const ITEMS_PER_PAGE = 15
 
-	useEffect(() => {
-		async function fetchProducts() {
-			try {
-				const data = await getShirts()
-				setProducts(data)
-			} catch (err) {
-				if (err instanceof Error) {
-					setError(err.message)
-				} else {
-					setError('Erro desconhecido')
-				}
-			} finally {
-				setLoading(false)
-			}
-		}
-		fetchProducts()
-	}, [])
+	const { data: products = [], isLoading: loading, error } = useProducts()
 
-	// Reset page when search query changes
-	useEffect(() => {
-		setCurrentPage(1)
-	}, [])
+	const categories = ['Todas', ...Array.from(new Set(products.map((p) => p.category)))]
 
-	const filtered = products.filter((p) => p.name.toLowerCase().includes(query.toLowerCase()))
+	const filtered = products.filter((p) => {
+		const matchesQuery = p.name.toLowerCase().includes(query.toLowerCase())
+		const matchesCategory = selectedCategory === 'Todas' || p.category === selectedCategory
+		return matchesQuery && matchesCategory
+	})
 
 	// Pagination logic
 	const indexOfLastItem = currentPage * ITEMS_PER_PAGE
@@ -45,6 +27,12 @@ export default function ProductsPage() {
 	const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE)
 
 	const paginate = (pageNumber: number) => setCurrentPage(pageNumber)
+
+	const formatCategoryName = (category: string) => {
+		if (category === 'calcas') return 'Calças'
+		if (category === 'camisas') return 'Camisas'
+		return category.charAt(0).toUpperCase() + category.slice(1)
+	}
 
 	if (loading) {
 		return (
@@ -57,7 +45,7 @@ export default function ProductsPage() {
 	if (error) {
 		return (
 			<div className="min-h-screen bg-gray-900 flex items-center justify-center">
-				<p className="text-red-500 text-xl">Erro ao carregar produtos: {error}</p>
+				<p className="text-red-500 text-xl">Erro ao carregar produtos: {error.message}</p>
 			</div>
 		)
 	}
@@ -70,18 +58,42 @@ export default function ProductsPage() {
 						Produtos
 					</h1>
 
-					<input
-						value={query}
-						onChange={(e) => setQuery(e.target.value)}
-						placeholder="Pesquisar produtos..."
-						className="w-full mb-6 bg-gray-900/40 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 transition"
-					/>
+					{/* Filters */}
+					<div className="flex flex-col md:flex-row gap-4 mb-6">
+						<input
+							value={query}
+							onChange={(e) => {
+								setQuery(e.target.value)
+								setCurrentPage(1)
+							}}
+							placeholder="Pesquisar produtos..."
+							className="flex-1 bg-gray-900/40 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 transition"
+						/>
+						<div className="flex gap-2 overflow-x-auto pb-2 md:pb-0">
+							{categories.map((cat) => (
+								<button
+									type="submit"
+									key={cat}
+									onClick={() => {
+										setSelectedCategory(cat)
+										setCurrentPage(1)
+									}}
+									className={`px-4 py-2 rounded-lg whitespace-nowrap transition ${
+										selectedCategory === cat
+											? 'bg-blue-600 text-white'
+											: 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+									}`}
+								>
+									{formatCategoryName(cat)}
+								</button>
+							))}
+						</div>
+					</div>
 
 					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-						{currentProducts.map((p, index) => {
-							const globalIndex = indexOfFirstItem + index
-							return <ProductCard key={p.id ?? p.name} {...p} id={globalIndex.toString()} />
-						})}
+						{currentProducts.map((p) => (
+							<ProductCard key={p.id} {...p} />
+						))}
 					</div>
 
 					{/* Pagination Controls */}

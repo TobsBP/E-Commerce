@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { registerAction } from './actions'
+import { registerAction } from '@/lib/auth/register'
 
 export default function Register() {
 	return (

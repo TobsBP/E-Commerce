@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { loginAction } from './actions'
+import { loginAction } from '@/lib/auth/login'
 
 export default function Login() {
 	return (

@@ -31,7 +31,7 @@ export default async function NavBar() {
 
 					{isAdmin && (
 						<Link href="/products/create" className="hover:text-blue-400 transition-colors">
-							Criar Looks
+							Criar Produtos
 						</Link>
 					)}
 

@@ -1,5 +1,6 @@
 'use server'
 
+import axios from 'axios'
 import { z } from 'zod'
 import { type CreateProductInput, ProductSchema } from '@/types/Schemas/productSchema'
 import { api } from './fetch'
@@ -20,6 +21,9 @@ export async function getShirt(id: string) {
 
 		return ProductSchema.parse(data)
 	} catch (error) {
+		if (axios.isAxiosError(error) && error.response?.status === 404) {
+			return null
+		}
 		console.error('Erro em getShirt:', error)
 		throw new Error('Erro ao buscar produto')
 	}

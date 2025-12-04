@@ -5,7 +5,7 @@ export const ProductSchema = z.object({
 	name: z.string(),
 	brand: z.string(),
 	price: z.number(),
-	image: z.string(),
+	image: z.array(z.string()),
 	rating: z.number(),
 	reviews: z.number(),
 	colors: z.array(z.string()),
