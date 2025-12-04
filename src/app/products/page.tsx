@@ -1,14 +1,16 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { ToastContainer, toast } from 'react-toastify'
 import ProductCard from '@/components/ProductCard'
 import { useProducts } from '@/hooks/useProducts'
+import { formatCategoryName } from '@/utils/categorys.utils'
+import { usePagination } from '@/utils/pagination.utils'
 
 export default function ProductsPage() {
 	const [query, setQuery] = useState('')
-	const [currentPage, setCurrentPage] = useState(1)
 	const [selectedCategory, setSelectedCategory] = useState('Todas')
-	const ITEMS_PER_PAGE = 15
+	const notify = () => toast('Wow so easy!')
 
 	const { data: products = [], isLoading: loading, error } = useProducts()
 
@@ -20,24 +22,17 @@ export default function ProductsPage() {
 		return matchesQuery && matchesCategory
 	})
 
-	// Pagination logic
-	const indexOfLastItem = currentPage * ITEMS_PER_PAGE
-	const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE
-	const currentProducts = filtered.slice(indexOfFirstItem, indexOfLastItem)
-	const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE)
-
-	const paginate = (pageNumber: number) => setCurrentPage(pageNumber)
-
-	const formatCategoryName = (category: string) => {
-		if (category === 'calcas') return 'Calças'
-		if (category === 'camisas') return 'Camisas'
-		return category.charAt(0).toUpperCase() + category.slice(1)
-	}
+	const {
+		currentPage,
+		currentItems: currentProducts,
+		totalPages,
+		paginate,
+	} = usePagination(filtered, 15)
 
 	if (loading) {
 		return (
 			<div className="min-h-screen bg-gray-900 flex items-center justify-center">
-				<p className="text-white text-xl">Carregando produtos...</p>
+				<ToastContainer />
 			</div>
 		)
 	}
@@ -64,7 +59,7 @@ export default function ProductsPage() {
 							value={query}
 							onChange={(e) => {
 								setQuery(e.target.value)
-								setCurrentPage(1)
+								paginate(1) // reseta paginação
 							}}
 							placeholder="Pesquisar produtos..."
 							className="flex-1 bg-gray-900/40 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 transition"
@@ -76,7 +71,7 @@ export default function ProductsPage() {
 									key={cat}
 									onClick={() => {
 										setSelectedCategory(cat)
-										setCurrentPage(1)
+										paginate(1) // reseta paginação
 									}}
 									className={`px-4 py-2 rounded-lg whitespace-nowrap transition ${
 										selectedCategory === cat
@@ -90,6 +85,7 @@ export default function ProductsPage() {
 						</div>
 					</div>
 
+					{/* Products */}
 					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
 						{currentProducts.map((p) => (
 							<ProductCard key={p.id} {...p} />

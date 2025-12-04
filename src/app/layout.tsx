@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { cookies } from 'next/headers'
+import { ToastContainer } from 'react-toastify/unstyled'
 import Footer from '@/components/Footer'
 import Navbar from '@/components/NavBar'
 import QueryProvider from '@/providers/QueryProvider'
@@ -21,6 +22,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 					<main>{children}</main>
 					{token && <Footer />}
 				</QueryProvider>
+
+				<ToastContainer />
 			</body>
 		</html>
 	)
